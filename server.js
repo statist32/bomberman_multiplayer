@@ -21,22 +21,32 @@ class Game {
     this.players = {}
     this.board = this.initBoard()
   }
+  idExists(id) {
+    return this.players.hasOwnProperty(id)
+  }
   addPlayer(id) {
     const playerCount = Object.keys(this.players).length
     const row = Math.floor(playerCount / 2) * (this.rows - 1)
     const column = (playerCount % 2) * (this.columns - 1)
     this.players[id] = new Character(this.board, row, column, id)
   }
+
   removePlayer(id) {
-    this.players[id].removeFromBoard()
-    delete this.players[id]
+    if (this.idExists(id)) {
+      this.players[id].removeFromBoard()
+      delete this.players[id]
+    }
   }
+
   movePlayer(id, direction) {
-    this.players[id].move(direction)
+    if (this.idExists(id)) {
+      this.players[id].move(direction)
+    }
   }
   plantBomb(id) {
-    this.players[id].plantBomb()
-    console.log('plant')
+    if (this.idExists(id)) {
+      this.players[id].plantBomb()
+    }
   }
   initBoard() {
     return Array(this.rows)
