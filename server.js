@@ -20,6 +20,19 @@ class Game {
     this.columns = columns
     this.players = {}
     this.board = this.initBoard()
+    this.hasStarted = false
+  }
+  isWon() {
+    const playerCount = Object.keys(this.players).length
+    let playerAlive = 0
+    Object.entries(this.players).forEach(([_, { isAlive }]) => {
+      if (isAlive) {
+        playerAlive++
+      }
+    })
+    return playerAlive === 1 && game.hasStarted && playerCount > 1
+      ? true
+      : false
   }
   idExists(id) {
     return this.players.hasOwnProperty(id)
@@ -29,6 +42,10 @@ class Game {
     const row = Math.floor(playerCount / 2) * (this.rows - 1)
     const column = (playerCount % 2) * (this.columns - 1)
     this.players[id] = new Character(this.board, row, column, id)
+    if (playerCount + 1 > 1) {
+      this.hasStarted = true
+      io.emit('gameStateUpdate', 'Running')
+    }
   }
 
   removePlayer(id) {
@@ -39,12 +56,12 @@ class Game {
   }
 
   movePlayer(id, direction) {
-    if (this.idExists(id)) {
+    if (this.idExists(id) && this.players[id].isAlive) {
       this.players[id].move(direction)
     }
   }
   plantBomb(id) {
-    if (this.idExists(id)) {
+    if (this.idExists(id) && this.players[id].isAlive) {
       this.players[id].plantBomb()
     }
   }
@@ -59,9 +76,7 @@ class Game {
   }
   updateBoard() {
     Object.entries(this.players).forEach(([id, { isAlive, row, column }]) => {
-      if (isAlive === false) {
-        this.removePlayer(id)
-      } else {
+      if (isAlive) {
         this.players[id].row = row
         this.players[id].column = column
       }
@@ -99,7 +114,9 @@ class Game {
       row.forEach((tile, tileIndex) => {
         tile.forEach((object) => {
           if (object instanceof Character) {
-            renderedBoard[rowIndex][tileIndex] = 1
+            if (object.isAlive) {
+              renderedBoard[rowIndex][tileIndex] = 1
+            }
           } else if (object instanceof Block) {
             renderedBoard[rowIndex][tileIndex] = object.breakable ? 2 : 3
           } else if (object instanceof Bomb) {
@@ -124,12 +141,12 @@ io.on('connection', (socket) => {
 
   socket.on('move', (direction) => {
     game.movePlayer(socket.id, direction)
-    // socket.emit('test', JSON.stringify(game.board))
   })
+
   socket.on('plantBomb', () => {
     game.plantBomb(socket.id)
-    // socket.emit('test', JSON.stringify(game.board))
   })
+
   socket.on('disconnect', () => {
     console.log(`user ${socket.id} disconnected`)
     game.removePlayer(socket.id)
@@ -138,6 +155,9 @@ io.on('connection', (socket) => {
 
 setInterval(() => {
   game.updateBoard()
+  if (game.isWon()) {
+    io.emit('gameStateUpdate', 'Over')
+  }
   game.sendBoard()
 }, 1000 / 60)
 

@@ -9,10 +9,20 @@ body {
 
 body {
   display: flex;
+  flex-flow: column nowrap;
   justify-self: center;
+  align-content: space-around;
 }
 
 #canvas {
   background: white;
   margin: auto;
+}
+
+#game-state-display {
+  font-size: 4rem;
+  text-align: center;
+  background-color: #f4f4f4;
+  padding: 1rem;
+  border-radius: 0 0 25px 25px;
 }

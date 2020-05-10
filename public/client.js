@@ -1,3 +1,4 @@
+const gameStateDisplay = document.getElementById('game-state-display')
 const canvas = document.getElementById('canvas')
 const ctx = canvas.getContext('2d')
 const TILE_SIZE = 20
@@ -20,7 +21,7 @@ socket.on('update', (newBoard) => {
   // console.log(newBoard)
   board = JSON.parse(newBoard)
 })
-socket.on('startPos', ({ row, column }) => '')
+socket.on('gameStateUpdate', (state) => (gameStateDisplay.innerText = state))
 
 function handleInput(e) {
   switch (e.key) {
