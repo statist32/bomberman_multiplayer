@@ -1,0 +1,113 @@
+const canvas = document.getElementById('canvas')
+const ctx = canvas.getContext('2d')
+const TILE_SIZE = 20
+const ROWS = 21
+const COLUMNS = 21
+
+canvas.height = ROWS * TILE_SIZE
+canvas.width = COLUMNS * TILE_SIZE
+
+const C_HEIGHT = canvas.height
+const C_WIDTH = canvas.width
+
+const socket = io()
+let board
+let player
+
+// socket.on('test', (msg) => console.table(JSON.parse(msg)))
+
+socket.on('update', (newBoard) => {
+  // console.log(newBoard)
+  board = JSON.parse(newBoard)
+})
+socket.on('startPos', ({ row, column }) => '')
+
+function handleInput(e) {
+  switch (e.key) {
+    case 'w':
+      socket.emit('move', 'moveUp')
+
+      break
+    case 'a':
+      socket.emit('move', 'moveLeft')
+      break
+
+    case 's':
+      socket.emit('move', 'moveDown')
+      break
+
+    case 'd':
+      socket.emit('move', 'moveRight')
+      break
+    case ' ':
+      socket.emit('plantBomb')
+      break
+    default:
+      break
+  }
+}
+document.addEventListener('keypress', handleInput)
+
+function animate() {
+  ctx.clearRect(0, 0, C_WIDTH, C_HEIGHT)
+  //draw every object
+
+  board &&
+    board.forEach((row, rowIndex) => {
+      row.forEach((tile, tileIndex) => {
+        if (tile !== 0) {
+          switch (tile) {
+            case 1:
+              drawPlayer(ctx, rowIndex, tileIndex)
+              break
+            case 2:
+              drawBlock(ctx, rowIndex, tileIndex, true)
+              break
+            case 3:
+              drawBlock(ctx, rowIndex, tileIndex, false)
+              break
+            case 4:
+              drawBomb(ctx, rowIndex, tileIndex)
+              break
+            case 5:
+              drawFire(ctx, rowIndex, tileIndex)
+              break
+            default:
+              break
+          }
+        }
+      })
+    })
+  requestAnimationFrame(animate)
+}
+
+animate()
+
+function drawPlayer(ctx, row, column) {
+  ctx.fillStyle = 'green'
+  ctx.fillRect(column * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE)
+}
+
+function drawBlock(ctx, row, column, breakable = false) {
+  ctx.fillStyle = breakable ? 'brown' : 'grey'
+  ctx.fillRect(column * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE)
+}
+
+function drawBomb(ctx, row, column) {
+  ctx.fillStyle = 'black'
+  ctx.beginPath()
+  const radius = TILE_SIZE / 2
+  ctx.arc(
+    column * TILE_SIZE + TILE_SIZE / 2,
+    row * TILE_SIZE + TILE_SIZE / 2,
+    radius,
+    0,
+    2 * Math.PI
+  )
+  ctx.fill()
+}
+
+function drawFire(ctx, row, column) {
+  ctx.fillStyle = 'red'
+  ctx.fillRect(column * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE)
+}
