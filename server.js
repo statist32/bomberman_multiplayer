@@ -19,8 +19,20 @@ class Game {
     this.rows = rows
     this.columns = columns
     this.players = {}
-    this.board = this.initBoard()
+    this.initBoard()
     this.hasStarted = false
+  }
+  restart() {
+    console.log('Restarting')
+    this.initBoard()
+    this.fillBoard()
+    Object.values(this.players).forEach((player, index) => {
+      const id = player.id
+      console.log(id)
+      this.removePlayer(id)
+      this.addPlayer(id, index)
+    })
+    triggered = false
   }
   isWon() {
     const playerCount = Object.keys(this.players).length
@@ -37,10 +49,16 @@ class Game {
   idExists(id) {
     return this.players.hasOwnProperty(id)
   }
-  addPlayer(id) {
+  addPlayer(id, position) {
+    let row, column
     const playerCount = Object.keys(this.players).length
-    const row = Math.floor(playerCount / 2) * (this.rows - 1)
-    const column = (playerCount % 2) * (this.columns - 1)
+    if (typeof position != 'number') {
+      row = Math.floor(playerCount / 2) * (this.rows - 1)
+      column = (playerCount % 2) * (this.columns - 1)
+    } else {
+      row = Math.floor(position / 2) * (this.rows - 1)
+      column = (position % 2) * (this.columns - 1)
+    }
     this.players[id] = new Character(this.board, row, column, id)
     if (playerCount + 1 > 1) {
       this.hasStarted = true
@@ -66,7 +84,7 @@ class Game {
     }
   }
   initBoard() {
-    return Array(this.rows)
+    this.board = Array(this.rows)
       .fill()
       .map(() =>
         Array(this.columns)
@@ -152,11 +170,13 @@ io.on('connection', (socket) => {
     game.removePlayer(socket.id)
   })
 })
-
+let triggered = false
 setInterval(() => {
   game.updateBoard()
-  if (game.isWon()) {
+  if (game.isWon() && !triggered) {
+    triggered = true
     io.emit('gameStateUpdate', 'Over')
+    setTimeout(() => game.restart(), 5000)
   }
   game.sendBoard()
 }, 1000 / 60)
