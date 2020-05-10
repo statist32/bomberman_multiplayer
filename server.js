@@ -27,7 +27,6 @@ class Game {
     this.fillBoard()
     Object.values(this.players).forEach((player, index) => {
       const id = player.id
-      console.log(id)
       this.removePlayer(id)
       this.addPlayer(id, index)
     })
