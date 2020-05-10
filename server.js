@@ -10,7 +10,6 @@ const Block = require('./game/Block.js')
 const Bomb = require('./game/Bomb.js')
 const Fire = require('./game/Fire.js')
 
-const TILE_SIZE = 20
 const ROWS = 21
 const COLUMNS = 21
 
@@ -103,23 +102,23 @@ class Game {
   fillBoard() {
     for (let row = 1; row < this.rows - 1; row += 1) {
       for (let column = 1; column < this.columns - 1; column += 1) {
-        new Block(this.board, row, column, TILE_SIZE, (row * column) % 2 === 0)
+        new Block(this.board, row, column, (row * column) % 2 === 0)
         if (row === 1 && column > 4 && column < this.columns - 4) {
-          new Block(this.board, row - 1, column, TILE_SIZE, true)
+          new Block(this.board, row - 1, column, true)
         } else if (
           row === this.rows - 2 &&
           column > 4 &&
           column < this.columns - 4
         ) {
-          new Block(this.board, row + 1, column, TILE_SIZE, true)
+          new Block(this.board, row + 1, column, true)
         } else if (column === 1 && row > 4 && row < this.columns - 4) {
-          new Block(this.board, row, column - 1, TILE_SIZE, true)
+          new Block(this.board, row, column - 1, true)
         } else if (
           column === this.columns - 2 &&
           row > 4 &&
           row < this.columns - 4
         ) {
-          new Block(this.board, row, column + 1, TILE_SIZE, true)
+          new Block(this.board, row, column + 1, true)
         }
       }
     }
