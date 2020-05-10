@@ -1,10 +1,10 @@
 class Entity {
   //non blocking
-  constructor(board, row, column, tileSize) {
+  constructor(board, row, column) {
     this.board = board
     this.row = row
     this.column = column
-    this.tileSize = tileSize
+
     this.addToBoard()
   }
   addToBoard() {

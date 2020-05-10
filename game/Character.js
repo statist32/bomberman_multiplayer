@@ -63,7 +63,7 @@ class Character extends Obstacle {
     console.log('You died!')
   }
   plantBomb() {
-    new Bomb(this.board, this.row, this.column, this.tileSize, 2, 1500)
+    new Bomb(this.board, this.row, this.column, 2, 1500)
   }
 }
 

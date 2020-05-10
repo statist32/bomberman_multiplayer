@@ -2,26 +2,13 @@ const Obstacle = require('./Obstacle.js')
 const Fire = require('./Fire.js')
 
 class Bomb extends Obstacle {
-  constructor(board, row, column, tileSize, range, explodeDelay = 2000) {
-    super(board, row, column, tileSize)
+  constructor(board, row, column, range, explodeDelay = 2000) {
+    super(board, row, column)
     this.range = range
     this.explodeDelay = explodeDelay
     this.timeout = setTimeout(() => this.explode(), this.explodeDelay)
   }
 
-  draw(ctx) {
-    ctx.fillStyle = 'black'
-    ctx.beginPath()
-    const radius = this.tileSize / 2
-    ctx.arc(
-      this.column * this.tileSize + this.tileSize / 2,
-      this.row * this.tileSize + this.tileSize / 2,
-      radius,
-      0,
-      2 * Math.PI
-    )
-    ctx.fill()
-  }
   destroy(object, row, column) {
     //returns false if fire ends here
     if (object.die) {
@@ -40,7 +27,7 @@ class Bomb extends Obstacle {
   }
   explode() {
     this.removeFromBoard()
-    new Fire(this.board, this.row, this.column, this.tileSize)
+    new Fire(this.board, this.row, this.column)
     for (let direction = 0; direction < 4; direction++) {
       for (let distance = 1; distance <= this.range; distance++) {
         let nextRow, nextColumn
@@ -74,7 +61,7 @@ class Bomb extends Obstacle {
               distance = this.range + 1
             }
           })
-          new Fire(this.board, nextRow, nextColumn, this.tileSize)
+          new Fire(this.board, nextRow, nextColumn)
         }
       }
     }
