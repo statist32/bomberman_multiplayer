@@ -12,14 +12,24 @@ const C_HEIGHT = canvas.height
 const C_WIDTH = canvas.width
 
 const socket = io()
+
 let board
 let player
 
-// socket.on('test', (msg) => console.table(JSON.parse(msg)))
+const ROOM = window.location.hash
+console.log(ROOM)
+socket.on('connect', () => {
+  socket.emit('join', ROOM)
+})
+
+socket.on('test', (msg) => {
+  console.log(msg)
+})
 
 socket.on('update', (newBoard) => {
-  // console.log(newBoard)
   board = JSON.parse(newBoard)
+  // console.log('update')
+  // console.table(newBoard)
 })
 socket.on('gameStateUpdate', (state) => (gameStateDisplay.innerText = state))
 
@@ -27,8 +37,8 @@ function handleInput(e) {
   switch (e.key) {
     case 'w':
       socket.emit('move', 'moveUp')
-
       break
+
     case 'a':
       socket.emit('move', 'moveLeft')
       break
@@ -51,7 +61,6 @@ document.addEventListener('keypress', handleInput)
 
 function animate() {
   ctx.clearRect(0, 0, C_WIDTH, C_HEIGHT)
-  //draw every object
 
   board &&
     board.forEach((row, rowIndex) => {

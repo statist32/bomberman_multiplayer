@@ -12,14 +12,19 @@ const Fire = require('./game/Fire.js')
 
 const ROWS = 21
 const COLUMNS = 21
-
+const FRAME_RATE = 60
 class Game {
-  constructor(rows, columns) {
+  constructor(rows, columns, room) {
     this.rows = rows
     this.columns = columns
     this.players = {}
     this.initBoard()
+    this.fillBoard()
     this.hasStarted = false
+    this.room = room
+    setInterval(() => {
+      this.manageGame()
+    }, 1000 / FRAME_RATE)
   }
   restart() {
     console.log('Restarting')
@@ -40,7 +45,7 @@ class Game {
         playerAlive++
       }
     })
-    return playerAlive === 1 && game.hasStarted && playerCount > 1
+    return playerAlive === 1 && this.hasStarted && playerCount > 1
       ? true
       : false
   }
@@ -122,8 +127,8 @@ class Game {
       }
     }
   }
-  sendBoard() {
-    let renderedBoard = Array(this.rows)
+  formatBoard() {
+    let formattedBoard = Array(this.rows)
       .fill()
       .map(() => Array(this.columns))
     this.board.forEach((row, rowIndex) => {
@@ -131,57 +136,78 @@ class Game {
         tile.forEach((object) => {
           if (object instanceof Character) {
             if (object.isAlive) {
-              renderedBoard[rowIndex][tileIndex] = 1
+              formattedBoard[rowIndex][tileIndex] = 1
             }
           } else if (object instanceof Block) {
-            renderedBoard[rowIndex][tileIndex] = object.breakable ? 2 : 3
+            formattedBoard[rowIndex][tileIndex] = object.breakable ? 2 : 3
           } else if (object instanceof Bomb) {
-            renderedBoard[rowIndex][tileIndex] = 4
+            formattedBoard[rowIndex][tileIndex] = 4
           } else if (object instanceof Fire) {
-            renderedBoard[rowIndex][tileIndex] = 5
+            formattedBoard[rowIndex][tileIndex] = 5
           }
         })
       })
     })
-    io.emit('update', JSON.stringify(renderedBoard))
+    return formattedBoard
+  }
+  sendBoard(formattedBoard) {
+    io.in(this.room).emit('update', JSON.stringify(formattedBoard))
+  }
+  manageGame() {
+    this.updateBoard()
+    const formattedBoard = this.formatBoard()
+    if (this.isWon() && !triggered) {
+      triggered = true
+      io.emit('gameStateUpdate', 'Over')
+      setTimeout(() => this.restart(), 5000)
+    }
+    this.sendBoard(formattedBoard)
   }
 }
 
-app.get('/', (req, res) => {
+app.all('*', (req, res) => {
   res.sendFile(__dirname + '/public/index.html')
 })
 
+// roomID:{players:[], game:gameObj}
+let rooms = {}
+
 io.on('connection', (socket) => {
-  console.log(`user ${socket.id} connected`)
-  game.addPlayer(socket.id)
+  const ID = socket.id
+  let ROOM = ''
+  let GAME = ''
+
+  console.log(`user ${ID} connected`)
+  socket.on('join', (room) => {
+    //sanity check
+    ROOM = room
+    socket.join(ROOM)
+    if (rooms.hasOwnProperty(ROOM)) {
+      rooms[ROOM].players.push(ID)
+    } else {
+      rooms[ROOM] = { players: [ID], game: new Game(ROWS, COLUMNS, ROOM) }
+    }
+    GAME = rooms[ROOM].game
+    GAME.addPlayer(ID)
+    io.in(ROOM).emit('test', `user ${ID} connected in ${room}`)
+  })
+
+  socket.on('msg', (msg) => {})
 
   socket.on('move', (direction) => {
-    game.movePlayer(socket.id, direction)
+    GAME.movePlayer(ID, direction)
   })
 
   socket.on('plantBomb', () => {
-    game.plantBomb(socket.id)
+    GAME.plantBomb(ID)
   })
 
   socket.on('disconnect', () => {
-    console.log(`user ${socket.id} disconnected`)
-    game.removePlayer(socket.id)
+    console.log(`user ${ID} disconnected`)
+    GAME.removePlayer(ID)
   })
 })
-let triggered = false
-setInterval(() => {
-  game.updateBoard()
-  if (game.isWon() && !triggered) {
-    triggered = true
-    io.emit('gameStateUpdate', 'Over')
-    setTimeout(() => game.restart(), 5000)
-  }
-  game.sendBoard()
-}, 1000 / 60)
 
 http.listen(3000, () => {
   console.log('listening on *:3000')
 })
-
-const game = new Game(ROWS, COLUMNS)
-game.fillBoard()
