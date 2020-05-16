@@ -46,20 +46,23 @@ class Game {
   }
 
   addPlayer(id, position) {
-    let row; let
-      column;
+    let row;
+    let column;
     const playerCount = Object.keys(this.players).length;
-    if (typeof position !== 'number') {
-      row = Math.floor(playerCount / 2) * (this.rows - 1);
-      column = (playerCount % 2) * (this.columns - 1);
-    } else {
-      row = Math.floor(position / 2) * (this.rows - 1);
-      column = (position % 2) * (this.columns - 1);
-    }
-    this.players[id] = new Character(this.board.board, row, column, id);
-    if (playerCount + 1 > 1) {
-      this.hasStarted = true;
-      this.io.in(this.room).emit('gameStateUpdate', 'Running');
+    console.log(playerCount);
+    if (playerCount < 4) {
+      if (typeof position !== 'number') {
+        row = Math.floor(playerCount / 2) * (this.rows - 1);
+        column = (playerCount % 2) * (this.columns - 1);
+      } else {
+        row = Math.floor(position / 2) * (this.rows - 1);
+        column = (position % 2) * (this.columns - 1);
+      }
+      this.players[id] = new Character(this.board.board, row, column, id);
+      if (playerCount + 1 > 1) {
+        this.hasStarted = true;
+        this.io.in(this.room).emit('gameStateUpdate', 'Running');
+      }
     }
   }
 
