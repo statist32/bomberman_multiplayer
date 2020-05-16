@@ -1,5 +1,5 @@
-const Obstacle = require("./Obstacle.js");
-const Fire = require("./Fire.js");
+const Obstacle = require('./Obstacle.js');
+const Fire = require('./Fire.js');
 
 class Bomb extends Obstacle {
   constructor(board, row, column, range, explodeDelay = 2000) {
@@ -10,27 +10,29 @@ class Bomb extends Obstacle {
   }
 
   destroy(object, row, column) {
-    //returns false if fire ends here
+    // returns false if fire ends here
     if (object.die) {
       object.die();
     }
     if (object.break) {
       object.break();
     } else if (
-      object instanceof Bomb &&
-      (row !== this.row || column !== this.column)
+      object instanceof Bomb
+      && (row !== this.row || column !== this.column)
     ) {
       clearTimeout(object.timeout);
       object.explode();
     }
     return true;
   }
+
   explode() {
     this.removeFromBoard();
     new Fire(this.board, this.row, this.column);
-    for (let direction = 0; direction < 4; direction++) {
-      for (let distance = 1; distance <= this.range; distance++) {
-        let nextRow, nextColumn;
+    for (let direction = 0; direction < 4; direction += 1) {
+      for (let distance = 1; distance <= this.range; distance += 1) {
+        let nextRow; let
+          nextColumn;
         switch (direction) {
           case 0:
             nextRow = this.row - distance;
@@ -57,7 +59,7 @@ class Bomb extends Obstacle {
         if (this.isValidPosition(nextRow, nextColumn)) {
           this.board[nextRow][nextColumn].forEach((object) => {
             if (this.destroy(object, nextRow, nextColumn)) {
-              //break
+              // break
               distance = this.range + 1;
             }
           });

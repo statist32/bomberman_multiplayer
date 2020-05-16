@@ -1,4 +1,5 @@
-const Obstacle = require("./Obstacle.js");
+const Obstacle = require('./Obstacle.js');
+
 class Block extends Obstacle {
   constructor(board, row, column, breakable = false) {
     super(board, row, column);

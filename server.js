@@ -1,12 +1,13 @@
-const express = require("express");
+const express = require('express');
+
 const app = express();
-const http = require("http").createServer(app);
-const io = require("socket.io")(http);
+const http = require('http').createServer(app);
+const io = require('socket.io')(http);
 
-app.use("/public", express.static(__dirname + "/public"));
+app.use('/public', express.static(`${__dirname}/public`));
 
-const Board = require("./game/Board.js");
-const Character = require("./game/Character.js");
+const Board = require('./game/Board.js');
+const Character = require('./game/Character.js');
 
 const ROWS = 21;
 const COLUMNS = 21;
@@ -25,34 +26,37 @@ class Game {
       this.run();
     }, 1000 / FRAME_RATE);
   }
+
   restart() {
-    console.log("Restarting");
+    console.log('Restarting');
     this.board.init();
     Object.values(this.players).forEach((player, index) => {
-      const id = player.id;
+      const { id } = player;
       this.removePlayer(id);
       this.addPlayer(id, index);
     });
   }
+
   isWon() {
     const playerCount = Object.keys(this.players).length;
     let playerAlive = 0;
-    Object.entries(this.players).forEach(([_, { isAlive }]) => {
+    Object.values(this.players).forEach(({ isAlive }) => {
       if (isAlive) {
-        playerAlive++;
+        playerAlive += 1;
       }
     });
-    return playerAlive === 1 && this.hasStarted && playerCount > 1
-      ? true
-      : false;
+    return !!(playerAlive === 1 && this.hasStarted && playerCount > 1);
   }
+
   idExists(id) {
-    return this.players.hasOwnProperty(id);
+    return Object.prototype.hasOwnProperty.call(this.players, id);
   }
+
   addPlayer(id, position) {
-    let row, column;
+    let row; let
+      column;
     const playerCount = Object.keys(this.players).length;
-    if (typeof position != "number") {
+    if (typeof position !== 'number') {
       row = Math.floor(playerCount / 2) * (this.rows - 1);
       column = (playerCount % 2) * (this.columns - 1);
     } else {
@@ -62,7 +66,7 @@ class Game {
     this.players[id] = new Character(this.board.board, row, column, id);
     if (playerCount + 1 > 1) {
       this.hasStarted = true;
-      io.in(this.room).emit("gameStateUpdate", "Running");
+      io.in(this.room).emit('gameStateUpdate', 'Running');
     }
   }
 
@@ -72,11 +76,13 @@ class Game {
       delete this.players[id];
     }
   }
+
   movePlayer(id, direction) {
     if (this.idExists(id) && this.players[id].isAlive) {
       this.players[id].move(direction);
     }
   }
+
   plantBomb(id) {
     if (this.idExists(id) && this.players[id].isAlive) {
       this.players[id].plantBomb();
@@ -98,32 +104,33 @@ class Game {
     const formattedBoard = this.board.convertToSendFormat();
     if (this.isWon() && !triggered) {
       triggered = true;
-      io.in(this.room).emit("gameStateUpdate", "Over");
+      io.in(this.room).emit('gameStateUpdate', 'Over');
       setTimeout(() => this.restart(), 5000);
     }
     this.sendBoard(formattedBoard);
   }
+
   sendBoard(formattedBoard) {
-    io.in(this.room).emit("update", JSON.stringify(formattedBoard));
+    io.in(this.room).emit('update', JSON.stringify(formattedBoard));
   }
 }
 
-app.all("*", (req, res) => {
-  res.sendFile(__dirname + "/public/index.html");
+app.all('*', (req, res) => {
+  res.sendFile(`${__dirname}/public/index.html`);
 });
 
 // roomID:{players:[], game:gameObj}
-let rooms = {};
+const rooms = {};
 
-io.on("connection", (socket) => {
+io.on('connection', (socket) => {
   const ID = socket.id;
-  let ROOM = "";
-  let GAME = "";
-  socket.on("join", (room) => {
-    //sanity check needed
+  let ROOM = '';
+  let GAME = '';
+  socket.on('join', (room) => {
+    // sanity check needed
     ROOM = room;
     socket.join(ROOM);
-    if (rooms.hasOwnProperty(ROOM)) {
+    if (Object.prototype.hasOwnProperty.call(rooms, ROOM)) {
       rooms[ROOM].players.push(ID);
     } else {
       rooms[ROOM] = { players: [ID], game: new Game(ROWS, COLUMNS, ROOM) };
@@ -132,21 +139,19 @@ io.on("connection", (socket) => {
     GAME.addPlayer(ID);
   });
 
-  socket.on("msg", (msg) => {});
-
-  socket.on("move", (direction) => {
+  socket.on('move', (direction) => {
     GAME.movePlayer(ID, direction);
   });
 
-  socket.on("plantBomb", () => {
+  socket.on('plantBomb', () => {
     GAME.plantBomb(ID);
   });
 
-  socket.on("disconnect", () => {
+  socket.on('disconnect', () => {
     GAME.removePlayer(ID);
   });
 });
 
 http.listen(3000, () => {
-  console.log("listening on *:3000");
+  console.log('listening on *:3000');
 });

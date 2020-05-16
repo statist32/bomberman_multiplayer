@@ -1,7 +1,7 @@
-const Block = require("./Block.js");
-const Character = require("./Character.js");
-const Bomb = require("./Bomb.js");
-const Fire = require("./Fire.js");
+const Block = require('./Block.js');
+const Character = require('./Character.js');
+const Bomb = require('./Bomb.js');
+const Fire = require('./Fire.js');
 
 class Board {
   constructor(rows, columns) {
@@ -9,19 +9,20 @@ class Board {
     this.columns = columns;
     this.init();
   }
+
   init() {
     this.board = this.createBoard();
     this.fill();
   }
+
   createBoard() {
     return Array(this.rows)
       .fill()
-      .map(() =>
-        Array(this.columns)
-          .fill()
-          .map(() => Array())
-      );
+      .map(() => Array(this.columns)
+        .fill()
+        .map(() => []));
   }
+
   fill() {
     for (let row = 1; row < this.rows - 1; row += 1) {
       for (let column = 1; column < this.columns - 1; column += 1) {
@@ -29,25 +30,26 @@ class Board {
         if (row === 1 && column > 4 && column < this.columns - 4) {
           new Block(this.board, row - 1, column, true);
         } else if (
-          row === this.rows - 2 &&
-          column > 4 &&
-          column < this.columns - 4
+          row === this.rows - 2
+          && column > 4
+          && column < this.columns - 4
         ) {
           new Block(this.board, row + 1, column, true);
         } else if (column === 1 && row > 4 && row < this.columns - 4) {
           new Block(this.board, row, column - 1, true);
         } else if (
-          column === this.columns - 2 &&
-          row > 4 &&
-          row < this.columns - 4
+          column === this.columns - 2
+          && row > 4
+          && row < this.columns - 4
         ) {
           new Block(this.board, row, column + 1, true);
         }
       }
     }
   }
+
   convertToSendFormat() {
-    let formattedBoard = Array(this.rows)
+    const formattedBoard = Array(this.rows)
       .fill()
       .map(() => Array(this.columns));
     this.board.forEach((row, rowIndex) => {
