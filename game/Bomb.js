@@ -28,7 +28,10 @@ class Bomb extends Obstacle {
 
   explode() {
     this.removeFromBoard();
+    // destroy planted tile
     new Fire(this.board, this.row, this.column);
+    this.destroy(this.board[this.row][this.column][0], this.row, this.column);
+
     for (let direction = 0; direction < 4; direction += 1) {
       for (let distance = 1; distance <= this.range; distance += 1) {
         let nextRow; let
