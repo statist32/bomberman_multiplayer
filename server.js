@@ -119,8 +119,6 @@ io.on("connection", (socket) => {
   const ID = socket.id;
   let ROOM = "";
   let GAME = "";
-
-  console.log(`user ${ID} connected`);
   socket.on("join", (room) => {
     //sanity check needed
     ROOM = room;
@@ -145,7 +143,6 @@ io.on("connection", (socket) => {
   });
 
   socket.on("disconnect", () => {
-    console.log(`user ${ID} disconnected`);
     GAME.removePlayer(ID);
   });
 });
