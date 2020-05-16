@@ -11,16 +11,16 @@ class Character extends Obstacle {
 
   canMove(row, column) {
     if (!this.isValidPosition(row, column)) { return false; }
+    let valid = true;
     this.board[row][column].forEach((object) => {
       if (object instanceof Obstacle) {
-        return false;
-      } if (object instanceof Fire) {
+        valid = false;
+      } else if (object instanceof Fire) {
         this.die();
-        return false;
+        valid = false;
       }
-      return true;
     });
-    return true;
+    return valid;
   }
 
   move(direction) {
