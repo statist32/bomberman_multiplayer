@@ -27,20 +27,20 @@ class Board {
     for (let row = 1; row < this.rows - 1; row += 1) {
       for (let column = 1; column < this.columns - 1; column += 1) {
         new Block(this.board, row, column, (row * column) % 2 === 0);
-        if (row === 1 && column > 4 && column < this.columns - 4) {
+        if (row === 1 && column > 4 && column < this.columns - 5) {
           new Block(this.board, row - 1, column, true);
         } else if (
           row === this.rows - 2
           && column > 4
-          && column < this.columns - 4
+          && column < this.columns - 5
         ) {
           new Block(this.board, row + 1, column, true);
-        } else if (column === 1 && row > 4 && row < this.columns - 4) {
+        } else if (column === 1 && row > 4 && row < this.columns - 5) {
           new Block(this.board, row, column - 1, true);
         } else if (
           column === this.columns - 2
           && row > 4
-          && row < this.columns - 4
+          && row < this.columns - 5
         ) {
           new Block(this.board, row, column + 1, true);
         }
