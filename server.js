@@ -25,7 +25,7 @@ io.on('connection', (socket) => {
   let GAME = '';
   socket.on('join', (room) => {
     // sanity check needed
-    ROOM = room;
+    ROOM = escape(room);
     socket.join(ROOM);
     if (Object.prototype.hasOwnProperty.call(rooms, ROOM)) {
       rooms[ROOM].players.push(ID);
