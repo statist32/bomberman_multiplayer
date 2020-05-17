@@ -1,7 +1,7 @@
 const gameStateDisplay = document.getElementById('game-state-display');
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
-const TILE_SIZE = 20;
+const TILE_SIZE = 32;
 const ROWS = 21;
 const COLUMNS = 21;
 
@@ -58,35 +58,31 @@ function handleInput(e) {
 document.addEventListener('keypress', handleInput);
 
 
-function drawPlayer(row, column) {
-  ctx.fillStyle = 'green';
-  ctx.fillRect(column * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE);
-}
+const images = {
 
-function drawBlock(row, column, breakable = false) {
-  ctx.fillStyle = breakable ? 'brown' : 'grey';
-  ctx.fillRect(column * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE);
-}
+};
+['bomb', 'fire', 'character', 'block_hard', 'block_breakable'].forEach((source) => {
+  const image = new Image(32, 32);
+  image.src = `/public/sprites/${source}.png`;
+  images[source] = image;
+});
+
 
 function drawBomb(row, column) {
-  ctx.fillStyle = 'black';
-  ctx.beginPath();
-  const radius = TILE_SIZE / 2;
-  ctx.arc(
-    column * TILE_SIZE + TILE_SIZE / 2,
-    row * TILE_SIZE + TILE_SIZE / 2,
-    radius,
-    0,
-    2 * Math.PI,
-  );
-  ctx.fill();
+  ctx.drawImage(images.bomb, column * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE);
 }
 
 function drawFire(row, column) {
-  ctx.fillStyle = 'red';
-  ctx.fillRect(column * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+  ctx.drawImage(images.fire, column * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE);
 }
 
+function drawPlayer(row, column) {
+  ctx.drawImage(images.character, column * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+}
+
+function drawBlock(row, column, breakable = false) {
+  ctx.drawImage(images[`block_${breakable ? 'breakable' : 'hard'}`], column * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+}
 
 function animate() {
   ctx.clearRect(0, 0, C_WIDTH, C_HEIGHT);
