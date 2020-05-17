@@ -4,7 +4,6 @@ const Character = require('./Character.js');
 
 const FRAME_RATE = 60;
 
-
 class Game {
   constructor(rows, columns, room, io) {
     this.rows = rows;
@@ -49,7 +48,6 @@ class Game {
     let row;
     let column;
     const playerCount = Object.keys(this.players).length;
-    console.log(playerCount);
     if (playerCount < 4) {
       if (typeof position !== 'number') {
         row = Math.floor(playerCount / 2) * (this.rows - 1);
