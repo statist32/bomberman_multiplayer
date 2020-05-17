@@ -1,5 +1,6 @@
 const Obstacle = require('./Obstacle.js');
 const Fire = require('./Fire.js');
+const Block = require('./Block.js');
 
 class Bomb extends Obstacle {
   constructor(board, row, column, range, explodeDelay = 2000) {
@@ -60,13 +61,16 @@ class Bomb extends Obstacle {
         }
 
         if (this.isValidPosition(nextRow, nextColumn)) {
+          let castFire = true;
           this.board[nextRow][nextColumn].forEach((object) => {
+            if (object instanceof Block && !object.breakable) { castFire = false; }
             if (this.destroy(object, nextRow, nextColumn)) {
-              // break
               distance = this.range + 1;
             }
           });
-          new Fire(this.board, nextRow, nextColumn);
+          if (castFire) {
+            new Fire(this.board, nextRow, nextColumn);
+          }
         }
       }
     }
