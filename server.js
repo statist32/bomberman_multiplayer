@@ -21,6 +21,7 @@ const rooms = {};
 
 io.on('connection', (socket) => {
   const ID = socket.id;
+  let USERNAME = '';
   let ROOM = '';
   let GAME = '';
   socket.on('join', (room) => {
@@ -33,7 +34,6 @@ io.on('connection', (socket) => {
       rooms[ROOM] = { players: [ID], game: new Game(ROWS, COLUMNS, ROOM, io) };
     }
     GAME = rooms[ROOM].game;
-    GAME.addPlayer(ID);
   });
 
   socket.on('move', (direction) => {
@@ -45,7 +45,16 @@ io.on('connection', (socket) => {
   });
 
   socket.on('disconnect', () => {
-    GAME.removePlayer(ID);
+    if (Object.prototype.hasOwnProperty.call(GAME.players, ID)) { GAME.removePlayer(ID); }
+    io.in(ROOM).emit('message', `${USERNAME} has left`);
+  });
+  socket.on('message', (msg) => {
+    io.in(ROOM).emit('message', `${USERNAME}: ${msg}`);
+  });
+  socket.on('setUsername', (name) => {
+    USERNAME = name;
+    io.in(ROOM).emit('message', `${USERNAME} has joined`);
+    GAME.addPlayer(ID, null, USERNAME);
   });
 });
 

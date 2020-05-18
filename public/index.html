@@ -7,8 +7,22 @@
     <title>Test</title>
   </head>
   <body>
-    <div id="game-state-display">Waiting</div>
-    <canvas id="canvas" width="400px" height="400px"></canvas>
+    <section id="game">
+      <canvas id="canvas" width="672px" height="672px"></canvas>
+      <div id="chat-wrapper">
+        <div id="chat">
+          <div class="message">Welcome to simple bomberman</div>
+        </div>
+        <div id="notification">Please enter a nickname:</div>
+        <form action="" id="message-form">
+          <input id="message-field" autocomplete="off" /><button
+            id="message-button"
+          >
+            Send
+          </button>
+        </form>
+      </div>
+    </section>
   </body>
   <script src="/socket.io/socket.io.js"></script>
   <script type="text/javascript" src="/public/client.js"></script>

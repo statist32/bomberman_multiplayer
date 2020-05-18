@@ -1,4 +1,3 @@
-const gameStateDisplay = document.getElementById('game-state-display');
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 const TILE_SIZE = 32;
@@ -14,9 +13,24 @@ const C_WIDTH = canvas.width;
 const socket = io();
 
 let board;
-
+let username;
 const ROOM = window.location.hash;
+const chat = document.getElementById('chat');
+const sendButton = document.getElementById('message-button');
+const messageField = document.getElementById('message-field');
+const notification = document.getElementById('notification');
 
+sendButton.addEventListener('click', (e) => {
+  e.preventDefault();
+  if (!username) {
+    username = messageField.value;
+    socket.emit('setUsername', username);
+    notification.parentElement.removeChild(notification);
+  } else {
+    socket.emit('message', messageField.value);
+  }
+  messageField.value = '';
+});
 
 socket.on('connect', () => {
   socket.emit('join', ROOM);
@@ -25,11 +39,18 @@ socket.on('connect', () => {
 socket.on('test', (msg) => {
   console.log(msg);
 });
+socket.on('message', (msg) => {
+  const divNode = document.createElement('div');
+  divNode.classList.add('message');
+  const textNode = document.createTextNode(`${msg}`);
+  divNode.appendChild(textNode);
+  chat.append(divNode);
+  divNode.scrollIntoView();
+});
 
 socket.on('update', (newBoard) => {
   board = JSON.parse(newBoard);
 });
-socket.on('gameStateUpdate', (state) => { gameStateDisplay.innerText = state; });
 
 function handleInput(e) {
   switch (e.key) {
@@ -62,7 +83,7 @@ const images = {
 
 };
 ['bomb', 'fire', 'character', 'block_hard', 'block_breakable'].forEach((source) => {
-  const image = new Image(32, 32);
+  const image = new Image(TILE_SIZE, TILE_SIZE);
   image.src = `/public/sprites/${source}.png`;
   images[source] = image;
 });

@@ -3,10 +3,11 @@ const Bomb = require('./Bomb.js');
 const Obstacle = require('./Obstacle.js');
 
 class Character extends Obstacle {
-  constructor(board, row, column, id) {
+  constructor(board, row, column, id, username) {
     super(board, row, column);
     this.id = id;
     this.isAlive = true;
+    this.username = username;
   }
 
   canMove(row, column) {
