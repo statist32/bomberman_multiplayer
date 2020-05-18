@@ -83,10 +83,15 @@ class Game {
 
     const playerCount = Object.keys(this.players).length;
     const playersAlive = Object.values(this.players).filter((player) => player.isAlive).length;
-    if (playersAlive === 1 && this.gameState === 'running') {
+    if (playersAlive > 1 && this.gameState === 'running') {
       this.gameState = 'over';
     } else if (playerCount < 2) {
-      this.gameState = 'waiting';
+      if (playersAlive === 0 && playerCount > 0 && this.gameState !== 'over') {
+        this.gameState = 'over';
+        setTimeout(() => this.restart(), 100);
+      } else {
+        this.gameState = 'waiting';
+      }
     } else if (playerCount > 1 && this.gameState === 'waiting') {
       this.gameState = 'running';
     }
