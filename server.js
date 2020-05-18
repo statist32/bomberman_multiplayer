@@ -46,14 +46,14 @@ io.on('connection', (socket) => {
 
   socket.on('disconnect', () => {
     if (Object.prototype.hasOwnProperty.call(GAME.players, ID)) { GAME.removePlayer(ID); }
-    io.in(ROOM).emit('message', `${USERNAME} has left`);
+    io.in(ROOM).emit('message', `${USERNAME} has left.`);
   });
   socket.on('message', (msg) => {
     io.in(ROOM).emit('message', `${USERNAME}: ${msg}`);
   });
   socket.on('setUsername', (name) => {
     USERNAME = name;
-    io.in(ROOM).emit('message', `${USERNAME} has joined`);
+    io.in(ROOM).emit('message', `${USERNAME} has joined.`);
     GAME.addPlayer(ID, null, USERNAME);
   });
 });
