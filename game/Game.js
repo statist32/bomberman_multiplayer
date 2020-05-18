@@ -20,7 +20,6 @@ class Game {
   }
 
   restart() {
-    console.log('Restarting');
     this.board.init();
     Object.values(this.players).forEach((player, index) => {
       const { id, username } = player;
@@ -83,15 +82,13 @@ class Game {
 
     const playerCount = Object.keys(this.players).length;
     const playersAlive = Object.values(this.players).filter((player) => player.isAlive).length;
-    if (playersAlive > 1 && this.gameState === 'running') {
+    if (playersAlive < 2 && this.gameState === 'running') {
       this.gameState = 'over';
-    } else if (playerCount < 2) {
-      if (playersAlive === 0 && playerCount > 0 && this.gameState !== 'over') {
-        this.gameState = 'over';
-        setTimeout(() => this.restart(), 100);
-      } else {
-        this.gameState = 'waiting';
-      }
+    } else if (playersAlive === 0 && playerCount === 1 && this.gameState === 'waiting') {
+      this.gameState = 'restarting';
+      setTimeout(() => this.restart(), 1000);
+    } else if (playerCount < 2 && this.gameState !== 'restarting') {
+      this.gameState = 'waiting';
     } else if (playerCount > 1 && this.gameState === 'waiting') {
       this.gameState = 'running';
     }
@@ -107,7 +104,8 @@ class Game {
     const formattedBoard = this.board.convertToSendFormat();
     if (this.gameState === 'over' && oldGameState === 'running') {
       this.io.in(this.room).emit('message', `${this.getWinner()} has won!`);
-      setTimeout(() => this.restart(), 5000);
+      this.gameState = 'restarting';
+      setTimeout(() => this.restart(), 3000);
     }
     this.sendBoard(formattedBoard);
   }
