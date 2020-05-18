@@ -20,6 +20,7 @@ const sendButton = document.getElementById('message-button');
 const messageField = document.getElementById('message-field');
 const notification = document.getElementById('notification');
 
+
 sendButton.addEventListener('click', (e) => {
   e.preventDefault();
   if (!username) {
@@ -53,31 +54,32 @@ socket.on('update', (newBoard) => {
 });
 
 function handleInput(e) {
-  switch (e.key) {
-    case 'w':
-      socket.emit('move', 'moveUp');
-      break;
+  if (document.activeElement.id !== 'message-field') {
+    switch (e.key) {
+      case 'w':
+        socket.emit('move', 'moveUp');
+        break;
 
-    case 'a':
-      socket.emit('move', 'moveLeft');
-      break;
+      case 'a':
+        socket.emit('move', 'moveLeft');
+        break;
 
-    case 's':
-      socket.emit('move', 'moveDown');
-      break;
+      case 's':
+        socket.emit('move', 'moveDown');
+        break;
 
-    case 'd':
-      socket.emit('move', 'moveRight');
-      break;
-    case ' ':
-      socket.emit('plantBomb');
-      break;
-    default:
-      break;
+      case 'd':
+        socket.emit('move', 'moveRight');
+        break;
+      case ' ':
+        socket.emit('plantBomb');
+        break;
+      default:
+        break;
+    }
   }
 }
 document.addEventListener('keypress', handleInput);
-
 
 const images = {
 
