@@ -45,7 +45,9 @@ io.on('connection', (socket) => {
   });
 
   socket.on('disconnect', () => {
-    if (Object.prototype.hasOwnProperty.call(GAME.players, ID)) { GAME.removePlayer(ID); }
+    if (GAME.player && Object.prototype.hasOwnProperty.call(GAME.players, ID)) {
+      GAME.removePlayer(ID);
+    }
     io.in(ROOM).emit('message', `${USERNAME} has left.`);
   });
   socket.on('message', (msg) => {
@@ -60,4 +62,8 @@ io.on('connection', (socket) => {
 
 http.listen(3000, () => {
   console.log('listening on *:3000');
+});
+
+process.on('uncaughtException', (err) => {
+  console.error(err);
 });
