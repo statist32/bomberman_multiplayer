@@ -1,26 +1,10 @@
 // eslint-disable-next-line import/extensions
 import Draw from './Draw.js';
 
-const socket = io();
-
-const chat = document.getElementById('chat');
-const sendButton = document.getElementById('message-button');
-const messageField = document.getElementById('message-field');
-const notification = document.getElementById('notification');
 let board;
 let username;
 
-sendButton.addEventListener('click', (e) => {
-  e.preventDefault();
-  if (!username) {
-    username = messageField.value;
-    socket.emit('setUsername', username);
-    notification.parentElement.removeChild(notification);
-  } else {
-    socket.emit('message', messageField.value);
-  }
-  messageField.value = '';
-});
+const socket = io();
 
 socket.on('connect', () => {
   const room = window.location.hash;
@@ -28,6 +12,7 @@ socket.on('connect', () => {
 });
 
 socket.on('message', (msg) => {
+  const chat = document.getElementById('chat');
   const divNode = document.createElement('div');
   divNode.classList.add('message');
   const textNode = document.createTextNode(`${msg}`);
@@ -39,6 +24,24 @@ socket.on('message', (msg) => {
 socket.on('update', (newBoard) => {
   board = JSON.parse(newBoard);
 });
+
+const sendButton = document.getElementById('message-button');
+
+
+sendButton.addEventListener('click', (e) => {
+  e.preventDefault();
+  const messageField = document.getElementById('message-field');
+  if (!username) {
+    const notification = document.getElementById('notification');
+    username = messageField.value;
+    socket.emit('setUsername', username);
+    notification.parentElement.removeChild(notification);
+  } else {
+    socket.emit('message', messageField.value);
+  }
+  messageField.value = '';
+});
+
 
 function handleInput(e) {
   if (document.activeElement.id !== 'message-field') {
