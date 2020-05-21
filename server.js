@@ -45,7 +45,7 @@ io.on('connection', (socket) => {
   });
 
   socket.on('disconnect', () => {
-    if (GAME.player && Object.prototype.hasOwnProperty.call(GAME.players, ID)) {
+    if (GAME.players && Object.prototype.hasOwnProperty.call(GAME.players, ID)) {
       GAME.removePlayer(ID);
     }
     io.in(ROOM).emit('message', `${USERNAME} has left.`);
