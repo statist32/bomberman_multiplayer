@@ -1,25 +1,14 @@
-const canvas = document.getElementById('canvas');
-const ctx = canvas.getContext('2d');
-const TILE_SIZE = 32;
-const ROWS = 21;
-const COLUMNS = 21;
-
-canvas.height = ROWS * TILE_SIZE;
-canvas.width = COLUMNS * TILE_SIZE;
-
-const C_HEIGHT = canvas.height;
-const C_WIDTH = canvas.width;
+// eslint-disable-next-line import/extensions
+import Draw from './Draw.js';
 
 const socket = io();
 
-let board;
-let username;
-const ROOM = window.location.hash;
 const chat = document.getElementById('chat');
 const sendButton = document.getElementById('message-button');
 const messageField = document.getElementById('message-field');
 const notification = document.getElementById('notification');
-
+let board;
+let username;
 
 sendButton.addEventListener('click', (e) => {
   e.preventDefault();
@@ -34,12 +23,10 @@ sendButton.addEventListener('click', (e) => {
 });
 
 socket.on('connect', () => {
-  socket.emit('join', ROOM);
+  const room = window.location.hash;
+  socket.emit('join', room);
 });
 
-socket.on('test', (msg) => {
-  console.log(msg);
-});
 socket.on('message', (msg) => {
   const divNode = document.createElement('div');
   divNode.classList.add('message');
@@ -74,6 +61,7 @@ function handleInput(e) {
       case ' ':
         socket.emit('plantBomb');
         break;
+
       default:
         break;
     }
@@ -81,55 +69,29 @@ function handleInput(e) {
 }
 document.addEventListener('keypress', handleInput);
 
-const images = {
-
-};
-['bomb', 'fire', 'character', 'block_hard', 'block_breakable'].forEach((source) => {
-  const image = new Image(TILE_SIZE, TILE_SIZE);
-  image.src = `/public/sprites/${source}.png`;
-  images[source] = image;
-});
-
-
-function drawBomb(row, column) {
-  ctx.drawImage(images.bomb, column * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE);
-}
-
-function drawFire(row, column) {
-  ctx.drawImage(images.fire, column * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE);
-}
-
-function drawPlayer(row, column) {
-  ctx.drawImage(images.character, column * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE);
-}
-
-function drawBlock(row, column, breakable = false) {
-  ctx.drawImage(images[`block_${breakable ? 'breakable' : 'hard'}`], column * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE);
-}
+const draw = new Draw(['bomb', 'fire', 'character', 'block_hard', 'block_breakable']);
 
 function animate() {
-  ctx.clearRect(0, 0, C_WIDTH, C_HEIGHT);
-
-
+  draw.clear();
   if (board) {
     board.forEach((row, rowIndex) => {
       row.forEach((tile, tileIndex) => {
         if (tile !== 0) {
           switch (tile) {
             case 1:
-              drawPlayer(rowIndex, tileIndex);
+              draw.player(rowIndex, tileIndex);
               break;
             case 2:
-              drawBlock(rowIndex, tileIndex, true);
+              draw.block(rowIndex, tileIndex, true);
               break;
             case 3:
-              drawBlock(rowIndex, tileIndex, false);
+              draw.block(rowIndex, tileIndex, false);
               break;
             case 4:
-              drawBomb(rowIndex, tileIndex);
+              draw.bomb(rowIndex, tileIndex);
               break;
             case 5:
-              drawFire(rowIndex, tileIndex);
+              draw.fire(rowIndex, tileIndex);
               break;
             default:
               break;
