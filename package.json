@@ -5,7 +5,7 @@
   "main": "index.js",
   "license": "MIT",
   "dependencies": {
-    "express": "^4.18.2",
+    "express": "^4.19.2",
     "socket.io": "^4.7.4"
   },
   "repository": "github:statist32/bomberman_multiplayer",
