@@ -6,7 +6,7 @@
   "license": "MIT",
   "dependencies": {
     "express": "^4.18.2",
-    "socket.io": "^4.7.4"
+    "socket.io": "^2.5.0"
   },
   "repository": "github:statist32/bomberman_multiplayer",
   "scripts": {
